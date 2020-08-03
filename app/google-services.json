@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "352664992855",
+    "firebase_url": "https://lets-meet-49bb6.firebaseio.com",
+    "project_id": "lets-meet-49bb6",
+    "storage_bucket": "lets-meet-49bb6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:352664992855:android:d3c689ee3356a4127ff712",
+        "android_client_info": {
+          "package_name": "com.example.letsmeet"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "352664992855-342b7fq2k7rne7nbg5uv9khdqg633ja6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBcyKKMsw2tJ2viktNOMUTxfJOKEo3hCRQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "352664992855-342b7fq2k7rne7nbg5uv9khdqg633ja6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
