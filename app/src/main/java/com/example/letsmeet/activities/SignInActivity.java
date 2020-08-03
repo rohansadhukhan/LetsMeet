@@ -15,10 +15,16 @@ import android.widget.Toast;
 import com.example.letsmeet.PreferenceManager;
 import com.example.letsmeet.PreferenceModel;
 import com.example.letsmeet.R;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 public class SignInActivity extends AppCompatActivity {
+
+    FirebaseAuth mAuth;
 
     private EditText email, password;
     private Button signIn_button;
@@ -29,6 +35,8 @@ public class SignInActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
+
+        mAuth = FirebaseAuth.getInstance();
 
         setUpViews();
 
@@ -51,7 +59,8 @@ public class SignInActivity extends AppCompatActivity {
             } else if(password.getText().toString().trim().isEmpty()) {
                 Toast.makeText(getApplicationContext(), "Enter Password", Toast.LENGTH_SHORT).show();
             } else {
-                signIn();
+//                signIn();
+                mainSignIn();
             }
         });
     }
@@ -87,6 +96,29 @@ public class SignInActivity extends AppCompatActivity {
 
     private void mainSignIn() {
 
+        String newEmail, newPassword;
+        newEmail = email.getText().toString().trim();
+        newPassword = password.getText().toString().trim();
+
+        progressBar.setVisibility(View.VISIBLE);
+        signIn_button.setVisibility(View.INVISIBLE);
+
+        mAuth.signInWithEmailAndPassword(newEmail, newPassword).addOnSuccessListener(new OnSuccessListener<AuthResult>() {
+            @Override
+            public void onSuccess(AuthResult authResult) {
+                Intent mainIntent = new Intent(SignInActivity.this, MainActivity.class);
+                mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(mainIntent);
+                finish();
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                progressBar.setVisibility(View.INVISIBLE);
+                signIn_button.setVisibility(View.VISIBLE);
+                Toast.makeText(SignInActivity.this, "Something went wrong!", Toast.LENGTH_SHORT);
+            }
+        });
     }
 
 
