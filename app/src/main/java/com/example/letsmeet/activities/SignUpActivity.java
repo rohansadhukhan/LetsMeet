@@ -1,5 +1,6 @@
 package com.example.letsmeet.activities;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -14,11 +15,18 @@ import android.widget.Toast;
 import com.example.letsmeet.PreferenceManager;
 import com.example.letsmeet.PreferenceModel;
 import com.example.letsmeet.R;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
 
 public class SignUpActivity extends AppCompatActivity {
+
+    FirebaseAuth mAuth;
 
     private EditText first_name, last_name, email, password, confirm_password;
     private Button signUp_button;
@@ -29,6 +37,8 @@ public class SignUpActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
+
+        mAuth = FirebaseAuth.getInstance();
 
         setUpViews();
 
@@ -49,7 +59,8 @@ public class SignUpActivity extends AppCompatActivity {
             } else if(!password.getText().toString().equals(confirm_password.getText().toString())) {
                 Toast.makeText(getApplicationContext(), "Password and Confirm Password are different", Toast.LENGTH_SHORT).show();
             } else {
-                signUp();
+//                signUp();
+                mainSignUp();
             }
         });
     }
@@ -77,6 +88,61 @@ public class SignUpActivity extends AppCompatActivity {
                     Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     startActivity(intent);
+                })
+                .addOnFailureListener(e -> {
+                    progressBar.setVisibility(View.INVISIBLE);
+                    signUp_button.setVisibility(View.VISIBLE);
+                });
+
+    }
+
+    private void mainSignUp() {
+
+        String newEmail, newPassword;
+        newEmail = email.getText().toString().trim();
+        newPassword = password.getText().toString().trim();
+
+        progressBar.setVisibility(View.VISIBLE);
+        signUp_button.setVisibility(View.INVISIBLE);
+
+        mAuth.createUserWithEmailAndPassword(newEmail, newPassword).addOnSuccessListener(new OnSuccessListener<AuthResult>() {
+            @Override
+            public void onSuccess(AuthResult authResult) {
+                putToDatabase();
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                progressBar.setVisibility(View.INVISIBLE);
+                signUp_button.setVisibility(View.VISIBLE);
+                Toast.makeText(SignUpActivity.this, "Something went wrong!", Toast.LENGTH_SHORT);
+            }
+        });
+    }
+
+    private void putToDatabase() {
+
+        final FirebaseUser currentUser = mAuth.getCurrentUser();
+        String uid = currentUser.getUid();
+
+        FirebaseFirestore database = FirebaseFirestore.getInstance();
+
+        HashMap<String, Object> user_data = new HashMap<>();
+        user_data.put(PreferenceModel.FIRST_NAME, first_name.getText().toString());
+        user_data.put(PreferenceModel.LAST_NAME, last_name.getText().toString());
+        user_data.put(PreferenceModel.EMAIL, email.getText().toString());
+        user_data.put(PreferenceModel.PASSWORD, password.getText().toString());
+
+        database.collection(PreferenceModel.USER)
+                .document(uid)
+                .set(user_data)
+                .addOnSuccessListener(documentReference -> {
+                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    intent.putExtra("firstName", first_name.getText().toString());
+                    intent.putExtra("lastName", last_name.getText().toString());
+                    startActivity(intent);
+                    finish();
                 })
                 .addOnFailureListener(e -> {
                     progressBar.setVisibility(View.INVISIBLE);
