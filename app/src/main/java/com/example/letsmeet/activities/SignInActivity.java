@@ -85,6 +85,11 @@ public class SignInActivity extends AppCompatActivity {
 
     }
 
+    private void mainSignIn() {
+
+    }
+
+
     private void setUpViews() {
         email = findViewById(R.id.email_signin);
         password = findViewById(R.id.password_signin);
